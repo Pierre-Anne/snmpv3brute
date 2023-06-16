@@ -174,6 +174,27 @@ def printBanner():
    print("                     |_|           for "+color.BOLD+color.RED+"Applied Risk"+color.END+"            ")
    print("                                                               ")
 
+   # initialize worker processes
+def init_worker(EData, wholeMsgModData, msgAuthenticationParametersData, hashTypeData):
+   # declare scope of a new global variable
+   global msgAuthenticationParameters
+   global wholeMsgMod
+   global E
+   global ipad_int
+   global opad_int
+   global l
+   global hashType
+   # store argument in the global variable for this process
+   E = EData
+   wholeMsgMod = wholeMsgModData
+   msgAuthenticationParameters = msgAuthenticationParametersData
+   hashType = hashTypeData
+   ipad          = '36'*64
+   opad          = '5c'*64
+   l             = 1048576
+   ipad_int      = int(ipad, 16)
+   opad_int      = int(opad, 16)
+   
 def main():
    ### GREETZ
    printBanner()
@@ -273,7 +294,7 @@ def main():
         
       if args.wordlist and keepTrying:
          # Create and use multithreading pool for faster wordlist processing
-         pool = Pool()
+         pool = Pool(initializer=init_worker, initargs=(E, wholeMsgMod, msgAuthenticationParameters, hashType))
          with open(args.wordlist, "r", encoding='latin-1') as lines:
             results = pool.imap_unordered(check_password, lines, chunksize=1000)
             pool.close()
